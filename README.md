@@ -11,6 +11,7 @@ Define and implement an Agent Based Model of any of the following natural or hum
 7. Any phenomena of your choice
 
 You can use an Agent based simulator, written in Python and covered during lectures, as a basis of your model (https://github.com/hsayama/PyCX), but you are also free to implement your own programme, in a programming language of choice. The only restrictions is that you cannot use any of the existing ABM frameworks listed in lecture materials and also here e.g. https://github.com/hsayama/PyCX
+
 ---
 ## Model Requirements
 Your model needs to satisfy the following properties:
