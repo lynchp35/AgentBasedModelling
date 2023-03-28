@@ -1,5 +1,5 @@
-# Data Analytics Project Template
-A project template to quick start data analytics and machine learning task.
+# Agent Based Modelling Assignment
+Assignment 2 for CA4024
 
 # About The Project
 It is convenient to adopt a good project structure having support of git when starting with a project for data analysis and machine learning.
