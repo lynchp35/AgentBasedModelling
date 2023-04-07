@@ -1,9 +1,7 @@
 # Agent Based Modelling Assignment
+> Define and implement an Agent Based Model of a virus spread among a group or between groups of people
 
-## About The Project
-Define and implement an Agent Based Model of any of the following natural or human phenomena, for example:
-1. Virus spread among a group or between groups of people
-
+## About the Project
 You can use an Agent based simulator, written in Python and covered during lectures, as a basis of your model (https://github.com/hsayama/PyCX), but you are also free to implement your own programme, in a programming language of choice. The only restrictions is that you cannot use any of the existing ABM frameworks listed in lecture materials and also here e.g. https://github.com/hsayama/PyCX
 
 ---
@@ -46,5 +44,4 @@ Your model needs to satisfy the following properties:
  1. [CSO 2020 Birth Data](https://data.cso.ie/table/VSA36)
  2. [CSO 2016 Census Data](https://data.cso.ie/table/E3001)
  3. [HSPC 2020-2023 Covid Data](https://www.hpsc.ie/a-z/respiratory/coronavirus/novelcoronavirus/surveillance/covid-19deathsreportedinireland/COVID-19_Death_Report_Website_v1.8_06032023.pdf)
-   
-
+ 

@@ -1,3 +1,4 @@
 # Files within a directory to ignore
-
+.github/
+_proc/
 code/philip/*.ipynb
