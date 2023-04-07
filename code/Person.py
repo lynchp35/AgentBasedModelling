@@ -20,9 +20,15 @@ class Person():
         # Covid Variables
         self.vaccinated = 0 # unvaccinated, vaccinated, one booster = 0, 1, 2
         self.infected = 0 # uninfected, is infected, was infected = 0, 1, 2
+        
+        # Position of Person in grid
+        self.x = random.uniform(0, 999)
+        self.y = random.uniform(0, 999)
 
         # Other variables ? mobility?
         # self.mobility = could be a random int or a fixed variable
+
+        
         
         PersonID += 1
     
@@ -40,8 +46,8 @@ class NewBorn(Person):
     def __init__(self) -> None:
          super().__init__(sex_probability={"Female":0.5, "Male":0.5}, 
                           age_probability={0:1}, 
-                          fertility_rate={0:1}, 
-                          mortality_rate={0:1})
+                          fertility_rate={0:0}, 
+                          mortality_rate={0:0})
 
 def return_random_choice(probability_dict):
     """
@@ -65,4 +71,10 @@ if __name__ == "__main__":
         P = Person(**population_characteristics)
         print(P)
         population[P.id] = P
+    
+    print("New Born:")
+    P = NewBorn()
+    print(P)
+    population[P.id] = P
+    
     #print(population)

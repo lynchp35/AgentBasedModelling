@@ -135,7 +135,7 @@ def find_vaccination_stats():
             separated_vaccine = separated_vaccine.join(
                 vaccination_rate.loc[vaccine_type,:, age_group].sort_index().rename(
                 columns={"VALUE":f"{short_hand_dict[vaccine_type]}_{short_hand_dict[age_group]}"}))
-    separated_vaccine.fillna(0).to_csv("../data/vaccination_stats.csv", index=False)
+    separated_vaccine.fillna(0).to_csv("../data/vaccination_stats.csv", index=True)
     
 if __name__ =="__main__":
     # Runs the CollectProbabilities class and saves data to 
