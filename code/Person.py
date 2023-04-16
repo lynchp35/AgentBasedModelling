@@ -1,6 +1,7 @@
 import json
 import random
 
+
 class Person():
     """
     This class set ups the initial values for agents in our system.
@@ -20,10 +21,7 @@ class Person():
         # Covid Variables
         self.vaccinated = 0 # unvaccinated, vaccinated, one booster = 0, 1, 2
         self.infected = 0 # uninfected, is infected, was infected = 0, 1, 2
-        
-        # Position of Person in grid
-        self.x = random.uniform(0, 999)
-        self.y = random.uniform(0, 999)
+
 
         # Other variables ? mobility?
         # self.mobility = could be a random int or a fixed variable
