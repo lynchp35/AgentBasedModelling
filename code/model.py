@@ -3,6 +3,8 @@ from Person import Person
 from utils import *
 from pylab import *
 import numpy as np
+import pandas as pd
+import datetime
 
 # Size of grid
 width = 200
@@ -11,16 +13,21 @@ height = 200
 initial_population = 300
 initial_covidrate = 0.01 # Expected number of infected = initial_population*initial_covidrate
 
-fertility_factor = 0.1 # Decrease the probability of a female giving birth 
-mortality_factor = 5 # Increase the probability of someone dying by 5
+fertility_factor = 0.2 # Decrease the probability of a female giving birth 
+mortality_factor = 4 # Increase the probability of someone dying by 5
 
-catching_covid_probability = 0.25 # Probability of getting covid if someone near you has it
+catching_covid_probability = 0.75 # Probability of getting covid if someone near you has it
 
 initial_infectionDistance = 4 # Max distance that you can catch covid from
 IDsquared = initial_infectionDistance ** 2
-NoiseLevel = 4
+NoiseLevel = 10
 
 fontdict={"size":8} # Font size for plots
+
+start_date = pd.to_datetime("2020-01-01")
+vaccination_start_date = pd.to_datetime("2021-01-01")
+
+
 
 # Importing population_characteristics used to generate a population with similar statistics as the Irish population
 input_file = open("../data/person_probabilities.json", "r")
@@ -110,7 +117,7 @@ def update():
         population[personID].y += normal(0, NoiseLevel)
         population[personID].x = clip(population[personID].x, 0, width)
         population[personID].y = clip(population[personID].y, 0, height)
-        if population[personID].infected == 1:
+        if population[personID].infected == 1: # Infected
             idata[-1] += 1
             newly_infected = spread_covid(personID, population, catching_covid_probability, newly_infected, IDsquared) # Checks if people are close to the infected person to catch covid
             if (population[personID].mortality_rate * mortality_factor) > random(): # Chance of person with covid dying
@@ -119,10 +126,13 @@ def update():
             else:
                 # Increase infected day counter and become health again
                 population, infected = update_infected_dict(personID, population, infected) 
-        else: # Infected
+        else: # Not infected
             hdata[-1] += 1
             # If healthy the person has a chance of giving birth based on fertility rates by age
             newborns = give_birth(population, personID, newborns, fertility_factor, width, height)
+           
+        # People can get vaccinated after the vaccination_start_date based on data found on the CSO website
+        get_vaccinated(personID, population, time, start_date, vaccination_start_date)
             
         
     bdata.append(len(newborns))
@@ -150,6 +160,7 @@ def update_agent(newborns,new_deaths,newly_infected):
     prior_len = len(population)
     population, infected = update_deaths(new_deaths, population, infected)
     assert(len(population) == prior_len - len(new_deaths))
+
 
 
 # Adjustable parameters below
@@ -184,6 +195,17 @@ def mortalityFactor (val = mortality_factor):
     mortality_factor = float(val)
     return val
 
+def fertilityFactor (val = fertility_factor):
+    '''
+    Number of particles.
+    Make sure you change this parameter while the simulation is not running,
+    and reset the simulation before running it. Otherwise it causes an error!
+    '''
+    global fertility_factor
+    fertility_factor = float(val)
+    return val
+
+
 def catchingCovidProbability (val = catching_covid_probability):
     '''
     Number of particles.
@@ -208,7 +230,8 @@ def infection_radius(val = initial_infectionDistance):
 import pycxsimulator
 pycxsimulator.GUI(parameterSetters = [population, 
                                       starting_covid_rate, 
-                                      mortalityFactor, 
+                                      mortalityFactor,
+                                      fertilityFactor, 
                                       catchingCovidProbability,
                                       infection_radius]
                                       ).start(func=[initialize, observe, update])

@@ -1,5 +1,9 @@
 import random
+import datetime
+import pandas as pd
 from Person import NewBorn
+
+vaccine_data = pd.read_csv("../data/vaccination_stats.csv", index_col=0, parse_dates=[0])
 
 def spread_covid(infected_personID, population, catching_covid_probability, newly_infected, IDsquared):
     """
@@ -10,9 +14,16 @@ def spread_covid(infected_personID, population, catching_covid_probability, newl
     for personID in population:
         # Checks if person is not already infected, then if they are within the radius
         if population[personID].infected != 1 and personID not in newly_infected and within_radius(population[personID], population[infected_personID], IDsquared):
+
             # Decrease chance of getting covid by half if the person has recovered from covid
-            catching_covid_probability = catching_covid_probability if population[personID].infected == 0 else (catching_covid_probability*0.5)
-            if catching_covid_probability > random.random():
+            covid_factors = 1 if population[personID].infected == 0 else 0.5
+            # Probability of getting covid drops if someone is vaccinated or has the booster
+            if population[personID].vaccinated == 1:
+                covid_factors = covid_factors * 0.4 
+            elif population[personID].vaccinated == 2 :
+                covid_factors = covid_factors * 0.2
+            catching_covid_probability = catching_covid_probability 
+            if (catching_covid_probability * covid_factors) > random.random():
                 newly_infected.append(personID)
     return newly_infected
 
@@ -43,12 +54,34 @@ def update_infected_dict(personID, population, infected):
     # If person is already infected increase day counter else assign the value of 0
     infected[personID] = infected.get(personID,-1) + 1
     # Become health after two weeks
-    if infected.get(personID,0) >= 14 and random.random() > 0.7:
+    if infected.get(personID,0) >= 14 and random.random() > 0.3:
         # Infected value of 2 means recovered, chances of getting sick again reduced 
         population[personID].infected = 2
         infected.pop(personID)
     
     return population, infected
+
+def get_vaccinated(personID, population, time, start_date, vaccination_start_date):
+    current_date = start_date + datetime.timedelta(days=time)
+    if current_date >= vaccination_start_date:
+
+        if population[personID].vaccinated == 0: # No vaccination
+            vaccine_type = "V1_"
+        elif population[personID].vaccinated == 1: # Vaccinated but no booster
+            vaccine_type = "V2_"
+        else: # Fully vaccinated
+            return 
+        if population[personID].age >= 12:
+            vaccine_type = f"{vaccine_type}12+"
+        else:
+            vaccine_type = f"{vaccine_type}11-"
+
+        vp = vaccine_data[vaccine_data.index < current_date][vaccine_type][-1]
+
+        vaccination_probability = {population[personID].vaccinated:1-vp,
+                                   population[personID].vaccinated+1:vp}
+        population[personID].vaccinated = return_random_choice(vaccination_probability)
+
 
 def update_deaths(new_deaths, population, infected):
     """

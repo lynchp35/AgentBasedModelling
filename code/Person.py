@@ -1,6 +1,4 @@
 import json
-import random
-
 
 class Person():
     """
@@ -12,6 +10,7 @@ class Person():
         global PersonID
         self.id = PersonID
         # Assigns a random age and sex based on the Irish population census data
+        from utils import return_random_choice
         self.age = return_random_choice(age_probability) 
         self.sex = return_random_choice(sex_probability)
         # Assigns the fertility_rate, mortality_rate based on the average for a person that age.
@@ -27,7 +26,7 @@ class Person():
         # self.mobility = could be a random int or a fixed variable
 
         
-        
+        self.age = int(self.age)
         PersonID += 1
     
     def __str__(self):
@@ -46,13 +45,6 @@ class NewBorn(Person):
                           age_probability={0:1}, 
                           fertility_rate={0:0}, 
                           mortality_rate={0:0})
-
-def return_random_choice(probability_dict):
-    """
-    Takes a dictionary with a person's characteristics as the keys and the probability as the values.
-    Returns a random choice of the characteristics based on the probabilities.  
-    """
-    return random.choices(list(probability_dict.keys()), weights=list(probability_dict.values()), k=1)[0]
 
 
 if __name__ == "__main__":
