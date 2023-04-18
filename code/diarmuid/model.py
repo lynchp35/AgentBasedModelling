@@ -14,7 +14,7 @@ def numInfected(n=5):
     '''Returns the initial number of infected people'''
     return int(n)
 
-def infectionRate(p=0.1):
+def infectionRate(p=0.4):
     '''Returns the initial infection rate'''
     return float(p)
 
@@ -31,7 +31,7 @@ def height(n=500):
     '''Returns the grid height'''
     return int(n)
     
-def infectionDistance(n=2):
+def infectionDistance(n=10):
     '''Returns the infection proximity'''
     return int(n)
 
