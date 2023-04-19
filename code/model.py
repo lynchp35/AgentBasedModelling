@@ -57,49 +57,56 @@ def initialize():
     
 def observe():
     global population, hdata, idata, bdata, ddata
-    subplot(3, 1, 1)
+    subplot(2, 2, 1)
     cla()
     # Plot scatterplot by healthy/infected
-    health_x = []
-    health_y = []
-    infected_x = []
-    infected_y = []
+
     if population != {}:
-        for ag in population.values():
-            if ag.infected != 1:
-                health_x.append(ag.x)
-                health_y.append(ag.y)
-            else:
-                infected_x.append(ag.x)
-                infected_y.append(ag.y)
+        health_x = [ag.x for ag in population.values() if ag.infected != 1]
+        health_y = [ag.y for ag in population.values() if ag.infected != 1]
+        infected_x = [ag.x for ag in population.values() if ag.infected == 1]
+        infected_y = [ag.y for ag in population.values() if ag.infected == 1]
         if len(health_x) > 0:
             scatter(health_x, health_y, color = 'green')
         if len(infected_x) > 0:
             scatter(infected_x, infected_y, color = 'blue')
-        legend({"Health":"green", "Infected":"blue"})
+        legend({"Health":"green", "Infected":"blue"},loc='upper right')
     
     # Plot a timeseries of number of health/infected
-    ax1 = subplot(3, 1, 2)
+    ax = subplot(2, 2, 2)
     cla()
-    ax2 = ax1.twinx()
 
-    ax1.set_xlabel('Days Since Patient Zero', fontdict=fontdict)
-    ax1.set_ylabel('Number of Health', color='g', fontdict=fontdict)
-    ax2.set_ylabel('Number of Infected', color='b', fontdict=fontdict)
-    ax1.plot(hdata, 'g-')
-    ax2.plot(idata, 'b-')
+    ax.set_xlabel('Days Since Patient Zero', fontdict=fontdict)
+    ax.plot(hdata, color='g', label='Healthy')
+    ax.plot(idata, color='b', label='Infected')
+    if len(hdata) != 0: ax.set_ylim(0,max([max(list(hdata)),max(list(idata))]))
+    #ax.text(0.9, 0.15, 'Healthy', color='g', transform=ax.transAxes, fontdict=fontdict)
+    #ax.text(0.9, 0.05, 'Infected', color='b', transform=ax.transAxes, fontdict=fontdict)
+    ax.legend(loc='lower right')
 
     # Plot a timeseries of deaths/births
-    ax1 = subplot(3, 1, 3)
+    ax = subplot(2, 2, 3)
     cla()
-    ax2 = ax1.twinx()
 
-    ax1.set_xlabel('Days Since Patient Zero', fontdict=fontdict)
-    ax1.set_ylabel('Number of Births', color='red', fontdict=fontdict)
-    ax2.set_ylabel('Number of Deaths', color='black', fontdict=fontdict)
-    ax1.plot(np.array(bdata).cumsum(), 'r-')
-    ax2.plot(np.array(ddata).cumsum())
+    ax.set_xlabel('Days Since Patient Zero', fontdict=fontdict)
+    ax.plot(np.array(bdata).cumsum(), 'yellow', label='Births')
+    ax.plot(np.array(ddata).cumsum(), 'black', label='Deaths')
+    if len(hdata) != 0: ax.set_ylim(0,max([max(np.array(ddata).cumsum()),max(np.array(bdata).cumsum())]))
+    #ax.text(0.1, 0.95, 'Births', color='r', transform=ax.transAxes, fontdict=fontdict)
+    #ax.text(0.1, 0.85, 'Deaths', color='black', transform=ax.transAxes, fontdict=fontdict)
+    ax.legend(loc='upper left')
 
+    # Plot a timeseries of deaths/births
+    ax = subplot(2, 2, 4)
+    cla()
+
+    ax.set_xlabel('Number of Health', color='g', fontdict=fontdict)
+    ax.set_ylabel('Number of Infected', color='b', fontdict=fontdict)
+    limit = len(population)
+    ax.set_xlim(0,limit)
+    ax.set_ylim(0,limit)
+    ax.plot(hdata, idata, 'cyan')
+    
 
 def update():
     global time, population, infected, newly_infected, hdata, idata, bdata, ddata, mortality_factor
@@ -235,3 +242,9 @@ pycxsimulator.GUI(parameterSetters = [population,
                                       catchingCovidProbability,
                                       infection_radius]
                                       ).start(func=[initialize, observe, update])
+t = 0
+initialize()
+observe()
+for i in range(1000):
+    update()
+    observe()
