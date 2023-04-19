@@ -36,13 +36,13 @@ population_characteristics = json.load(input_file)
 input_file.close()
 
 def initialize():
-    global time, population, infected, hdata, idata, bdata, ddata, new_deaths
+    global time, population, infected, hdata, idata, bdata, ddata, death_dict
 
     time = 0
     # Health/Infected/Births/Deaths population throughout time 
     hdata, idata, bdata, ddata, new_deaths = [], [], [], [], []
     
-    population, infected = {}, {}
+    population, infected, death_dict = {}, {}, {}
 
     # Used to random give people in the population covid, 0 = not infected, 1 = infected
     initial_covid_probability = {0:1.0-initial_covidrate,
@@ -75,7 +75,7 @@ def initialize():
         create_files(directory_path, sep)
 
 def observe():
-    global population, hdata, idata, bdata, ddata, new_deaths
+    global population, hdata, idata, bdata, ddata
     subplot(2, 2, 1)
     cla()
     # Plot scatterplot by healthy/infected
@@ -110,7 +110,7 @@ def observe():
     ax.set_xlabel('Days Since Patient Zero', fontdict=fontdict)
     ax.plot(np.array(bdata).cumsum(), 'yellow', label='Births')
     ax.plot(np.array(ddata).cumsum(), 'black', label='Deaths')
-    if len(hdata) != 0: ax.set_ylim(0,max([max(np.array(ddata).cumsum()),max(np.array(bdata).cumsum())]))
+    if len(hdata) != 0: ax.set_ylim(0,max([max(np.array(ddata).cumsum()),max(np.array(bdata).cumsum())])+10)
     #ax.text(0.1, 0.95, 'Births', color='r', transform=ax.transAxes, fontdict=fontdict)
     #ax.text(0.1, 0.85, 'Deaths', color='black', transform=ax.transAxes, fontdict=fontdict)
     ax.legend(loc='upper left')
@@ -125,16 +125,19 @@ def observe():
     ax.set_xlim(0,limit)
     ax.set_ylim(0,limit)
     ax.plot(hdata, idata, 'cyan')
+    if save_model_data:
+        global directory_path, sep
+        save_files(directory_path, sep, population, death_dict)
     
 
 def update():
-    global time, population, infected, newly_infected, hdata, idata, bdata, ddata, mortality_factor, new_deaths
+    global time, population, infected, newly_infected, hdata, idata, bdata, ddata, mortality_factor, new_deaths, death_dict
 
     time += 1
     hdata.append(0)
     idata.append(0)
     new_deaths, newly_infected = [], []
-    newborns = {}
+    newborns, death_dict = {}, {}
     # simulate random motion
     for personID in population:
         # Random movement
@@ -147,6 +150,7 @@ def update():
             newly_infected = spread_covid(personID, population, catching_covid_probability, newly_infected, IDsquared) # Checks if people are close to the infected person to catch covid
             if (population[personID].mortality_rate * mortality_factor) > random(): # Chance of person with covid dying
                 new_deaths.append(personID)
+                death_dict[personID] = [population[personID].age, population[personID].vaccinated]
             else:
                 # Increase infected day counter and become health again
                 population, infected = update_infected_dict(personID, population, infected) 

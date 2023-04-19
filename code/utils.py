@@ -1,6 +1,7 @@
 import random
 import datetime
 import pandas as pd
+import json
 from Person import NewBorn
 
 vaccine_data = pd.read_csv("../data/vaccination_stats.csv", index_col=0, parse_dates=[0])
@@ -138,26 +139,127 @@ def return_random_choice(probability_dict):
     return random.choices(list(probability_dict.keys()), weights=list(probability_dict.values()), k=1)[0]
 
 def create_files(directory_path, sep):
+    """
+    This function takes in a filepath and creates three text files:
+    - location, this contains the x,y values for each person split by \n\n for each time point
+    - composition, this contains the age of each person in the population split by \n\n for each time point
+    - death, this contains the age and vaccine status of each person who die at that time point split by \n\n
+    """
     filepath = f"{directory_path}{sep}"
-
-
     for filename in ["location", "composition", "death"]:
+        # Opens each file and write an empty string to create a blank document
         output_file= open(file=f"{filepath}{filename}_data.txt", mode="w", encoding="utf-8") 
         output_file.write("")
         output_file.close()
 
-def save_files(directory_path, sep, population, new_deaths):
+def save_files(directory_path, sep, population, death_dict):
+    """
+    This function is used to write out new data as the simulation runs:
+    This contains the data for the files:
+    - location, this contains the x,y values for each person split by \n\n for each time point
+    - composition, this contains the age of each person in the population split by \n\n for each time point
+    - death, this contains the age and vaccine status of each person who die at that time point split by \n\n
+    """
+    
     filepath = f"{directory_path}{sep}"
 
     for filename in ["location", "composition", "death"]:
+        # Appends to the blank document
         output_file= open(file=f"{filepath}{filename}_data.txt", mode="a", encoding="utf-8")
         if filename == "location":
             for i in range(0,3):
+                # Save peoples x, y and split them into three groups, healthy, infected and recovered split by \n
                 output_file.write(str([[population[pID].x,population[pID].y] for pID in population if population[pID].infected == i])+"\n")
+
         elif filename == "composition":
             for sex in ["Female", "Male"]:
+                # Save peoples age and split them into two groups, female and male split by \n
                 output_file.write(str([population[pID].age for pID in population if population[pID].sex == sex])+"\n")
         else:
-            output_file.write(str([[population[pID].age, population[pID].vaccinated] for pID in new_deaths if pID in population])+"\n")
+            # Save dead peoples age and vaccine status
+            output_file.write(str([death_dict[pID] for pID in death_dict])+"\n")
+            # output_file.write(str([[population[pID].age, population[pID].vaccinated] for pID in new_deaths if pID in population])+"\n")
+        # Used to split time points with an extra \n
         output_file.write("\n")
         output_file.close()
+
+def extract_location_data(path):
+    """
+    This function is used to extract the location data from the text and store it in an easier to use json format.
+    """
+    # Read data in from txt file
+    output_file= open(file=path, mode="r", encoding="utf-8") 
+    data = output_file.read()
+    output_file.close()
+
+    reformated_data = {}
+    # The three groups used and time points are split by \n\n
+    people_type = ["healthy", "infected", "recovered"]
+    split_data = data.split("\n\n")
+    for time in range(len(split_data)):
+        current_data = split_data[time].split("\n")
+        reformated_data[time] = {}
+        for i in range(3):
+            reformated_data[time][people_type[i]] = {"x":[],
+                                            "y":[]}
+            try:                              
+                for point in current_data[i][2:-2].split("], ["):
+                    if len(point.split(", ")) > 1:
+                        try:
+                            reformated_data[time][people_type[i]]["x"].append(float(point.split(", ")[0]))
+                            reformated_data[time][people_type[i]]["y"].append(float(point.split(", ")[1]))
+                        except ValueError:
+                            pass
+            except IndexError:
+                print(f"Missing data on day {time}, current value {current_data}")
+                print(f"May be due to error at the end of the data.")
+        updated_path = path[:-3]+"json"
+    save_dictionary(updated_path, reformated_data)
+
+def extract_death_data(path):
+    """
+    This function is used to extract the location data from the text and store it in an easier to use json format.
+    """
+    # Read data in from txt file
+    output_file= open(file=path, mode="r", encoding="utf-8") 
+    data = output_file.read()
+    output_file.close()
+
+    reformated_data = {"age":[], "vaccinated":[]}
+    split_data = data.split("\n\n")
+    for i in range(len(split_data)):
+        current_data = split_data[i][2:-2].split("], [")
+        if len(current_data) > 1:
+            for values in current_data:
+                age, vaccinated = values.split(", ")
+                reformated_data["age"].append(age)
+                reformated_data["vaccinated"].append(vaccinated)
+
+    updated_path = path[:-3]+"json"
+    save_dictionary(updated_path, reformated_data)
+
+def extract_composition_data(path):
+    """
+    This function is used to extract the location data from the text and store it in an easier to use json format.
+    """
+    # Read data in from txt file
+    output_file= open(file=path, mode="r", encoding="utf-8") 
+    data = output_file.read()
+    output_file.close()
+
+    reformated_data = {}
+    split_data = data.split("\n\n")
+    for i in range(len(split_data)):
+        current_data = split_data[i].split("\n")
+        if len(current_data) > 1:
+            reformated_data[i] = {"female":[age for age in current_data[0][1:-1].split(", ")], 
+                            "male":[age for age in current_data[1][1:-1].split(", ")]}
+
+    updated_path = path[:-3]+"json"
+    save_dictionary(updated_path, reformated_data)
+
+def save_dictionary(updated_path, data):
+    # Save dictionary to a json file
+    output_file = open(updated_path, 'w', encoding='utf-8')
+    json.dump(data, output_file, indent=4)
+    output_file.close()
