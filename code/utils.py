@@ -85,7 +85,6 @@ def get_vaccinated(personID, population, time, start_date, vaccination_start_dat
                                    population[personID].vaccinated+1:vp}
         population[personID].vaccinated = return_random_choice(vaccination_probability)
 
-
 def update_deaths(new_deaths, population, infected):
     """
     This function is used to remove people who have died from covid from:

@@ -99,8 +99,6 @@ def observe():
     ax.plot(hdata, color='g', label='Healthy')
     ax.plot(idata, color='b', label='Infected')
     if len(hdata) != 0: ax.set_ylim(0,max([max(list(hdata)),max(list(idata))]))
-    #ax.text(0.9, 0.15, 'Healthy', color='g', transform=ax.transAxes, fontdict=fontdict)
-    #ax.text(0.9, 0.05, 'Infected', color='b', transform=ax.transAxes, fontdict=fontdict)
     ax.legend(loc='lower right')
 
     # Plot a timeseries of deaths/births
@@ -111,8 +109,6 @@ def observe():
     ax.plot(np.array(bdata).cumsum(), 'yellow', label='Births')
     ax.plot(np.array(ddata).cumsum(), 'black', label='Deaths')
     if len(hdata) != 0: ax.set_ylim(0,max([max(np.array(ddata).cumsum()),max(np.array(bdata).cumsum())])+10)
-    #ax.text(0.1, 0.95, 'Births', color='r', transform=ax.transAxes, fontdict=fontdict)
-    #ax.text(0.1, 0.85, 'Deaths', color='black', transform=ax.transAxes, fontdict=fontdict)
     ax.legend(loc='upper left')
 
     # Plot a timeseries of deaths/births
