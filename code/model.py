@@ -4,7 +4,6 @@ from utils import *
 from pylab import *
 import numpy as np
 import pandas as pd
-import datetime
 
 # Size of grid
 width = 200
@@ -144,6 +143,7 @@ def update():
         
     bdata.append(len(newborns))
     ddata.append(len(new_deaths))
+    
     update_agent(newborns,new_deaths,newly_infected)
 
 

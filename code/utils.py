@@ -20,7 +20,7 @@ def spread_covid(infected_personID, population, catching_covid_probability, newl
             # Probability of getting covid drops if someone is vaccinated or has the booster
             if population[personID].vaccinated == 1:
                 covid_factors = covid_factors * 0.4 
-            elif population[personID].vaccinated == 2 :
+            elif population[personID].vaccinated == 2 or population[personID].age < 1:
                 covid_factors = covid_factors * 0.2
             catching_covid_probability = catching_covid_probability 
             if (catching_covid_probability * covid_factors) > random.random():
