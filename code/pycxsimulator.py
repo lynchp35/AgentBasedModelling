@@ -208,7 +208,7 @@ class GUI:
         
     def saveParametersCmd(self):
         for variableSetter in self.parameterSetters:
-            variableSetter(float(self.varEntries[variableSetter].get()))
+            variableSetter(self.varEntries[variableSetter].get())
             self.setStatusStr("New parameter values have been set")
             
     def saveParametersAndResetCmd(self):

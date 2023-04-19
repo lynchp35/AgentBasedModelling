@@ -20,9 +20,11 @@ def spread_covid(infected_personID, population, catching_covid_probability, newl
             # Probability of getting covid drops if someone is vaccinated or has the booster
             if population[personID].vaccinated == 1:
                 covid_factors = covid_factors * 0.4 
-            elif population[personID].vaccinated == 2 or population[personID].age < 1:
+            elif population[personID].vaccinated == 2:
                 covid_factors = covid_factors * 0.2
-            catching_covid_probability = catching_covid_probability 
+
+            if population[personID].age < 1:
+                covid_factors = 0.001
             if (catching_covid_probability * covid_factors) > random.random():
                 newly_infected.append(personID)
     return newly_infected
@@ -134,3 +136,28 @@ def return_random_choice(probability_dict):
     Returns a random choice of the characteristics based on the probabilities.  
     """
     return random.choices(list(probability_dict.keys()), weights=list(probability_dict.values()), k=1)[0]
+
+def create_files(directory_path, sep):
+    filepath = f"{directory_path}{sep}"
+
+
+    for filename in ["location", "composition", "death"]:
+        output_file= open(file=f"{filepath}{filename}_data.txt", mode="w", encoding="utf-8") 
+        output_file.write("")
+        output_file.close()
+
+def save_files(directory_path, sep, population, new_deaths):
+    filepath = f"{directory_path}{sep}"
+
+    for filename in ["location", "composition", "death"]:
+        output_file= open(file=f"{filepath}{filename}_data.txt", mode="a", encoding="utf-8")
+        if filename == "location":
+            for i in range(0,3):
+                output_file.write(str([[population[pID].x,population[pID].y] for pID in population if population[pID].infected == i])+"\n")
+        elif filename == "composition":
+            for sex in ["Female", "Male"]:
+                output_file.write(str([population[pID].age for pID in population if population[pID].sex == sex])+"\n")
+        else:
+            output_file.write(str([[population[pID].age, population[pID].vaccinated] for pID in new_deaths if pID in population])+"\n")
+        output_file.write("\n")
+        output_file.close()

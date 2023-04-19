@@ -4,6 +4,8 @@ from utils import *
 from pylab import *
 import numpy as np
 import pandas as pd
+import os
+import sys
 
 # Size of grid
 width = 200
@@ -26,7 +28,7 @@ fontdict={"size":8} # Font size for plots
 start_date = pd.to_datetime("2020-01-01")
 vaccination_start_date = pd.to_datetime("2021-01-01")
 
-
+save_model_data = False
 
 # Importing population_characteristics used to generate a population with similar statistics as the Irish population
 input_file = open("../data/person_probabilities.json", "r")
@@ -34,13 +36,13 @@ population_characteristics = json.load(input_file)
 input_file.close()
 
 def initialize():
-    global time, population, dead_population, infected, hdata, idata, bdata, ddata
+    global time, population, infected, hdata, idata, bdata, ddata, new_deaths
 
     time = 0
     # Health/Infected/Births/Deaths population throughout time 
-    hdata, idata, bdata, ddata = [], [], [], []
+    hdata, idata, bdata, ddata, new_deaths = [], [], [], [], []
     
-    population, dead_population, infected = {}, {}, {}
+    population, infected = {}, {}
 
     # Used to random give people in the population covid, 0 = not infected, 1 = infected
     initial_covid_probability = {0:1.0-initial_covidrate,
@@ -54,9 +56,26 @@ def initialize():
         population[P.id].x, population[P.id].y = uniform(0, width), uniform(0, height)
         # Randomly assign covid to people in the population based on the covid rate
         population[P.id].infected = return_random_choice(initial_covid_probability)
-    
+
+    if save_model_data:
+        global directory_path, sep
+        directory_path = f"..\data\Pop{initial_population}_ICR{initial_covidrate}_Fert{fertility_factor}_Mort{mortality_factor}_CCP{catching_covid_probability}_Dist{initial_infectionDistance}"
+        # If folder doesn't exist, then create it.
+        try:
+            sep = "\\"
+            if not os.path.isdir(directory_path):
+                os.makedirs(directory_path)
+        except:
+            sep = "/"
+            directory_path = directory_path.replace("\\","/")
+            if not os.path.isdir(directory_path):
+                os.makedirs(directory_path)
+        print("Data saved to the directory : ", directory_path)
+        
+        create_files(directory_path, sep)
+
 def observe():
-    global population, hdata, idata, bdata, ddata
+    global population, hdata, idata, bdata, ddata, new_deaths
     subplot(3, 1, 1)
     cla()
     # Plot scatterplot by healthy/infected
@@ -99,10 +118,12 @@ def observe():
     ax2.set_ylabel('Number of Deaths', color='black', fontdict=fontdict)
     ax1.plot(np.array(bdata).cumsum(), 'r-')
     ax2.plot(np.array(ddata).cumsum())
-
+    if save_model_data:
+        global directory_path, sep
+        save_files(directory_path, sep, population, new_deaths)
 
 def update():
-    global time, population, infected, newly_infected, hdata, idata, bdata, ddata, mortality_factor
+    global time, population, infected, newly_infected, hdata, idata, bdata, ddata, mortality_factor, new_deaths
 
     time += 1
     hdata.append(0)
@@ -120,7 +141,6 @@ def update():
             idata[-1] += 1
             newly_infected = spread_covid(personID, population, catching_covid_probability, newly_infected, IDsquared) # Checks if people are close to the infected person to catch covid
             if (population[personID].mortality_rate * mortality_factor) > random(): # Chance of person with covid dying
-                dead_population[personID] = population[personID]
                 new_deaths.append(personID)
             else:
                 # Increase infected day counter and become health again
@@ -161,77 +181,128 @@ def update_agent(newborns,new_deaths,newly_infected):
     population, infected = update_deaths(new_deaths, population, infected)
     assert(len(population) == prior_len - len(new_deaths))
 
-
-
 # Adjustable parameters below
 
-def population (val = initial_population):
+def Population (val = initial_population):
     '''
-    Number of particles.
+    Adjust the initial population.
+
     Make sure you change this parameter while the simulation is not running,
     and reset the simulation before running it. Otherwise it causes an error!
     '''
-    global initial_population
-    initial_population = int(val)
-    return val
+    try:
+        global initial_population
+        initial_population = int(val)
+        return val
+    except ValueError:
+        print(f"{val} is not an int")
 
-def starting_covid_rate (val = initial_covidrate):
+
+def StartingCovidRate (val = initial_covidrate):
     '''
-    Number of particles.
+    Adjust the initial covid rate.
+    Expected initial numbers of covid in the population is initial_population * initial_covidrate.
+
     Make sure you change this parameter while the simulation is not running,
     and reset the simulation before running it. Otherwise it causes an error!
     '''
-    global initial_covidrate
-    initial_covidrate = float(val)
-    return val
+    try:
+        global initial_covidrate
+        initial_covidrate = float(val)
+        return val
+    except ValueError:
+        print(f"{val} is not a float")
 
-def mortalityFactor (val = mortality_factor):
+def MortalityFactor (val = mortality_factor):
     '''
-    Number of particles.
+    Change the probability of someone dying by a factor.
+    For visual effects this is set greater than 1 so that more people die than expected in the real population.
+
     Make sure you change this parameter while the simulation is not running,
     and reset the simulation before running it. Otherwise it causes an error!
     '''
-    global mortality_factor
-    mortality_factor = float(val)
-    return val
+    try:
+        global mortality_factor
+        mortality_factor = float(val)
+        return val
+    except ValueError:
+        print(f"{val} is not a float")
 
-def fertilityFactor (val = fertility_factor):
+
+def FertilityFactor (val = fertility_factor):
     '''
-    Number of particles.
+    Change the probability of someone giving birth by a factor.
+    Due to the naive implementation this value should be < 1 to avoid huge population growth.   
+    
     Make sure you change this parameter while the simulation is not running,
     and reset the simulation before running it. Otherwise it causes an error!
     '''
-    global fertility_factor
-    fertility_factor = float(val)
-    return val
+    try:
+        global fertility_factor
+        fertility_factor = float(val)
+        return val
+    except ValueError:
+        print(f"{val} is not a float")
 
 
-def catchingCovidProbability (val = catching_covid_probability):
+
+def CatchingCovidProbability (val = catching_covid_probability):
     '''
-    Number of particles.
+    The probability of catching covid if an agent is within the radius of an infected agent.
+
     Make sure you change this parameter while the simulation is not running,
     and reset the simulation before running it. Otherwise it causes an error!
     '''
-    global catching_covid_probability
-    catching_covid_probability = float(val)
-    return val
 
-def infection_radius(val = initial_infectionDistance):
+    try:
+        global catching_covid_probability
+        catching_covid_probability = float(val)
+        assert(catching_covid_probability <= 1)
+        assert(catching_covid_probability >= 0)
+        return val
+    except ValueError:
+        print(f"{val} is not a float")
+
+
+def InfectionRadius(val = initial_infectionDistance):
     '''
-    Number of particles.
+    The maximum distance an agent can catch covid from.
+
     Make sure you change this parameter while the simulation is not running,
     and reset the simulation before running it. Otherwise it causes an error!
     '''
-    global IDsquared
-    IDsquared = float(val)**2
+    try:
+        global IDsquared
+        IDsquared = float(val)**2
+        return val
+    except ValueError:
+        print(f"{val} is not a float")
+
+
+def SaveModelData(val=save_model_data):
+    '''
+    True or False to save the following data:
+    - Population
+    - 
+
+    Make sure you change this parameter while the simulation is not running,
+    and reset the simulation before running it. Otherwise it causes an error!
+    '''
+    global save_model_data
+    if type(val) == str:
+        val = eval(val)
+    save_model_data = val
     return val
     
+
+
 # Code to run simulation
 import pycxsimulator
-pycxsimulator.GUI(parameterSetters = [population, 
-                                      starting_covid_rate, 
-                                      mortalityFactor,
-                                      fertilityFactor, 
-                                      catchingCovidProbability,
-                                      infection_radius]
+pycxsimulator.GUI(parameterSetters = [Population, 
+                                      StartingCovidRate, 
+                                      MortalityFactor,
+                                      FertilityFactor, 
+                                      CatchingCovidProbability,
+                                      InfectionRadius,
+                                      SaveModelData]
                                       ).start(func=[initialize, observe, update])
