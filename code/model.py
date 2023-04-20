@@ -124,7 +124,6 @@ def observe():
     if save_model_data:
         global directory_path, sep
         save_files(directory_path, sep, population, death_dict)
-    
 
 def update():
     global time, population, infected, newly_infected, hdata, idata, bdata, ddata, mortality_factor, new_deaths, death_dict
@@ -164,7 +163,6 @@ def update():
     
     update_agent(newborns,new_deaths,newly_infected)
 
-
 def update_agent(newborns,new_deaths,newly_infected):
     """
     This functions updates the following aspects of the population:
@@ -187,7 +185,6 @@ def update_agent(newborns,new_deaths,newly_infected):
     assert(len(population) == prior_len - len(new_deaths))
 
 # Adjustable parameters below
-
 def Population (val = initial_population):
     '''
     Adjust the initial population.
@@ -201,7 +198,6 @@ def Population (val = initial_population):
         return val
     except ValueError:
         print(f"{val} is not an int")
-
 
 def StartingCovidRate (val = initial_covidrate):
     '''
@@ -233,7 +229,6 @@ def MortalityFactor (val = mortality_factor):
     except ValueError:
         print(f"{val} is not a float")
 
-
 def FertilityFactor (val = fertility_factor):
     '''
     Change the probability of someone giving birth by a factor.
@@ -248,8 +243,6 @@ def FertilityFactor (val = fertility_factor):
         return val
     except ValueError:
         print(f"{val} is not a float")
-
-
 
 def CatchingCovidProbability (val = catching_covid_probability):
     '''
@@ -268,7 +261,6 @@ def CatchingCovidProbability (val = catching_covid_probability):
     except ValueError:
         print(f"{val} is not a float")
 
-
 def InfectionRadius(val = initial_infectionDistance):
     '''
     The maximum distance an agent can catch covid from.
@@ -282,7 +274,6 @@ def InfectionRadius(val = initial_infectionDistance):
         return val
     except ValueError:
         print(f"{val} is not a float")
-
 
 def SaveModelData(val=save_model_data):
     '''
@@ -298,8 +289,6 @@ def SaveModelData(val=save_model_data):
         val = eval(val)
     save_model_data = val
     return val
-    
-
 
 # Code to run simulation
 import pycxsimulator
