@@ -1,9 +1,0 @@
-project:
-  output-dir: _docs
-
-website:
-  title: "AgentBasedModelling"
-  site-url: "https://lynchp35.github.io/AgentBasedModelling"
-  description: "Modelling a virus spread among a group or between groups of people using agent-based modelling"
-  repo-branch: main
-  repo-url: "https://github.com/lynchp35/AgentBasedModelling"

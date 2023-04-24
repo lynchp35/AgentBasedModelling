@@ -3,3 +3,6 @@
 _proc/
 __pycache__/
 code/philip/*.ipynb
+images/
+Pop*
+*_data.txt

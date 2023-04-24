@@ -8,18 +8,18 @@ import os
 import sys
 
 # Size of grid
-width = 200
-height = 200
+width = 100
+height = 100
 
 initial_population = 300
 initial_covidrate = 0.01 # Expected number of infected = initial_population*initial_covidrate
 
-fertility_factor = 0.2 # Decrease the probability of a female giving birth 
-mortality_factor = 4 # Increase the probability of someone dying by 5
+fertility_factor = 0.01 # Decrease the probability of a female giving birth 
+mortality_factor = 100 # Increase the probability of someone dying by 4
 
-catching_covid_probability = 0.75 # Probability of getting covid if someone near you has it
+catching_covid_probability = 0.999 # Probability of getting covid if someone near you has it
 
-initial_infectionDistance = 4 # Max distance that you can catch covid from
+initial_infectionDistance = 20 # Max distance that you can catch covid from
 IDsquared = initial_infectionDistance ** 2
 NoiseLevel = 10
 
@@ -28,7 +28,7 @@ fontdict={"size":8} # Font size for plots
 start_date = pd.to_datetime("2020-01-01")
 vaccination_start_date = pd.to_datetime("2021-01-01")
 
-save_model_data = False
+save_model_data = True
 
 # Importing population_characteristics used to generate a population with similar statistics as the Irish population
 input_file = open("../data/person_probabilities.json", "r")
@@ -90,30 +90,33 @@ def observe():
         if len(infected_x) > 0:
             scatter(infected_x, infected_y, color = 'blue')
         legend({"Health":"green", "Infected":"blue"},loc='upper right')
+        plt.xlabel('x')
+        plt.ylabel('y')
+        plt.title('Grid of Full Population', fontsize=10)
     
     # Plot a timeseries of number of health/infected
     ax = subplot(2, 2, 2)
     cla()
 
     ax.set_xlabel('Days Since Patient Zero', fontdict=fontdict)
+    ax.set_ylabel('Number of People', fontdict=fontdict)
     ax.plot(hdata, color='g', label='Healthy')
     ax.plot(idata, color='b', label='Infected')
     if len(hdata) != 0: ax.set_ylim(0,max([max(list(hdata)),max(list(idata))]))
-    #ax.text(0.9, 0.15, 'Healthy', color='g', transform=ax.transAxes, fontdict=fontdict)
-    #ax.text(0.9, 0.05, 'Infected', color='b', transform=ax.transAxes, fontdict=fontdict)
     ax.legend(loc='lower right')
+    plt.title('Comparison of the Healthy and Infected Populations Over Time', fontsize=10)
 
     # Plot a timeseries of deaths/births
     ax = subplot(2, 2, 3)
     cla()
 
     ax.set_xlabel('Days Since Patient Zero', fontdict=fontdict)
+    ax.set_ylabel('Number of People', fontdict=fontdict)
     ax.plot(np.array(bdata).cumsum(), 'yellow', label='Births')
     ax.plot(np.array(ddata).cumsum(), 'black', label='Deaths')
     if len(hdata) != 0: ax.set_ylim(0,max([max(np.array(ddata).cumsum()),max(np.array(bdata).cumsum())])+10)
-    #ax.text(0.1, 0.95, 'Births', color='r', transform=ax.transAxes, fontdict=fontdict)
-    #ax.text(0.1, 0.85, 'Deaths', color='black', transform=ax.transAxes, fontdict=fontdict)
     ax.legend(loc='upper left')
+    plt.title('Comparison of Births and Deaths Over Time', fontsize=10)
 
     # Plot a timeseries of deaths/births
     ax = subplot(2, 2, 4)
@@ -121,18 +124,21 @@ def observe():
 
     ax.set_xlabel('Number of Health', color='g', fontdict=fontdict)
     ax.set_ylabel('Number of Infected', color='b', fontdict=fontdict)
-    limit = len(population)
+    limit = len(population) if time == 0 else max(max(hdata),max(idata))
     ax.set_xlim(0,limit)
     ax.set_ylim(0,limit)
     ax.plot(hdata, idata, 'cyan')
+    plt.title('Convergence Plot of Healthy and Infected Populations', fontsize=10)
     if save_model_data:
         global directory_path, sep
+        directory_path = f"..\data\Pop{initial_population}_ICR{initial_covidrate}_Fert{fertility_factor}_Mort{mortality_factor}_CCP{catching_covid_probability}_Dist{initial_infectionDistance}"
         save_files(directory_path, sep, population, death_dict)
-    
 
 def update():
     global time, population, infected, newly_infected, hdata, idata, bdata, ddata, mortality_factor, new_deaths, death_dict
 
+    if time == 1000:
+        pycxsimulator.GUI.quitGUI()
     time += 1
     hdata.append(0)
     idata.append(0)
@@ -168,7 +174,6 @@ def update():
     
     update_agent(newborns,new_deaths,newly_infected)
 
-
 def update_agent(newborns,new_deaths,newly_infected):
     """
     This functions updates the following aspects of the population:
@@ -191,7 +196,6 @@ def update_agent(newborns,new_deaths,newly_infected):
     assert(len(population) == prior_len - len(new_deaths))
 
 # Adjustable parameters below
-
 def Population (val = initial_population):
     '''
     Adjust the initial population.
@@ -205,7 +209,6 @@ def Population (val = initial_population):
         return val
     except ValueError:
         print(f"{val} is not an int")
-
 
 def StartingCovidRate (val = initial_covidrate):
     '''
@@ -237,7 +240,6 @@ def MortalityFactor (val = mortality_factor):
     except ValueError:
         print(f"{val} is not a float")
 
-
 def FertilityFactor (val = fertility_factor):
     '''
     Change the probability of someone giving birth by a factor.
@@ -252,8 +254,6 @@ def FertilityFactor (val = fertility_factor):
         return val
     except ValueError:
         print(f"{val} is not a float")
-
-
 
 def CatchingCovidProbability (val = catching_covid_probability):
     '''
@@ -272,7 +272,6 @@ def CatchingCovidProbability (val = catching_covid_probability):
     except ValueError:
         print(f"{val} is not a float")
 
-
 def InfectionRadius(val = initial_infectionDistance):
     '''
     The maximum distance an agent can catch covid from.
@@ -286,7 +285,6 @@ def InfectionRadius(val = initial_infectionDistance):
         return val
     except ValueError:
         print(f"{val} is not a float")
-
 
 def SaveModelData(val=save_model_data):
     '''
@@ -302,8 +300,6 @@ def SaveModelData(val=save_model_data):
         val = eval(val)
     save_model_data = val
     return val
-    
-
 
 # Code to run simulation
 import pycxsimulator
