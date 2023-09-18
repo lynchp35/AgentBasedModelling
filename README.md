@@ -1,16 +1,16 @@
 # Agent Based Modelling Assignment
-> Define and implement an Agent Based Model of a virus spread among a group or between groups of people
+> Define and implement an Agent-Based Model of a virus spread among a group or between groups of people
 
 ## Recommended Steps:
 
-1. Download the Repository
+1. Download the repository
 2. Download the [PyCX GUI](https://math.libretexts.org/Bookshelves/Scientific_Computing_Simulations_and_Modeling/Book%3A_Introduction_to_the_Modeling_and_Analysis_of_Complex_Systems_(Sayama)/10%3A_Interactive_Simulations_of_Complex_Systems/10.02%3A_Interactive_Simulation_with_PyCX)
-3. Run the following command in the code directory:
+3. Run the following terminal command in the code directory:
 >       python model.py
 4. You can run the simulation and perform experiments using the interface window.
 
 - If you face issues running the code, please consult the original document: [PyCX](https://github.com/hsayama/PyCX/blob/master/README.md)
-- You can also read through our [Final Report](deliverables/Final Report.pdf).
+- You can also read through our [Final Report](https://github.com/lynchp35/AgentBasedModelling/blob/main/deliverables/Final%20Report.pdf) for further details on how to use the PyCX GUI.
 ## Project Insights
 - We controlled and observed the impact of population density on a virus outbreak.
 - A virus spreads through high-density populations more rapidly than low-density populations.
