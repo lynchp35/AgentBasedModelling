@@ -100,7 +100,7 @@ Your model needs to satisfy the following properties:
 |    ├── model.py
 |    ├── utils.py
 |    └── ETC
-└── Data
+└── data
     ├── CSO_birthRate_2020.csv
     ├── CSO_census_2016.csv
     ├── CSO_vaccinationRate_2021_2023.csv
@@ -109,6 +109,10 @@ Your model needs to satisfy the following properties:
     └── vaccination_stats.csv
 └── deliverables
     └── Final Report.pdf
+└── images
+    ├── high_population_density.PNG
+    ├── low_population_density.PNG
+    └── outbreak_types.PNG
 ```
  
  Data can be found through the links below:
