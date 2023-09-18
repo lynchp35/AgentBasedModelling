@@ -9,8 +9,8 @@
 >       python model.py
 4. You can run the simulation and perform experiments using the interface window.
 
-If you face issues running the code, please consult the original document: [PyCX](https://github.com/hsayama/PyCX/blob/master/README.md)
-You can also read through our [Final Report](deliverables/Final Report.pdf).
+- If you face issues running the code, please consult the original document: [PyCX](https://github.com/hsayama/PyCX/blob/master/README.md)
+- You can also read through our [Final Report](deliverables/Final Report.pdf).
 ## Project Insights
 - We controlled and observed the impact of population density on a virus outbreak.
 - A virus spreads through high-density populations more rapidly than low-density populations.
